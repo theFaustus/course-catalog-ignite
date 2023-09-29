@@ -35,8 +35,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx2:1.6.4")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.apache.commons:commons-lang3:3.12.0")
-    implementation("com.hazelcast:hazelcast:5.2.1")
-    implementation("com.hazelcast:hazelcast-spring:5.2.1")
+
+    implementation("org.apache.ignite:ignite-core:2.15.0")
+
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")

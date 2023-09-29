@@ -5,8 +5,7 @@ import inc.evil.reviews.common.exceptions.NotFoundException
 import inc.evil.reviews.model.Review
 import inc.evil.reviews.repo.ReviewRepository
 import inc.evil.reviews.service.ReviewService
-import inc.evil.reviews.service.hazelcast.GetCourseByIdCallable
-import inc.evil.reviews.service.hazelcast.HazelcastGateway
+import inc.evil.reviews.service.ignite.IgnitePeerGateway
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.slf4j.Logger
@@ -17,7 +16,7 @@ import java.time.LocalDate
 
 @Service
 @Transactional
-class ReviewServiceImpl(val reviewRepository: ReviewRepository, val hazelcastGateway: HazelcastGateway) : ReviewService {
+class ReviewServiceImpl(val reviewRepository: ReviewRepository, val ignitePeerGateway: IgnitePeerGateway) : ReviewService {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -33,8 +32,9 @@ class ReviewServiceImpl(val reviewRepository: ReviewRepository, val hazelcastGat
 
     override suspend fun save(review: Review): Review {
         runCatching {
-            hazelcastGateway.execute(GetCourseByIdCallable(review.courseId!!)).also { log.info("Call to hazelcast ended with $it") }
-        }.getOrNull() ?: throw NotFoundException(CourseApiResponse::class, "course_id", review.courseId.toString())
+            ignitePeerGateway.findCourseById(review.courseId!!).also { log.info("Call to ignite ended with $it") }
+        }.onFailure { log.error("Oops, ignite remote execution failed due to ${it.message}", it) }
+            .getOrNull() ?: throw NotFoundException(CourseApiResponse::class, "course_id", review.courseId.toString())
         return reviewRepository.save(review).awaitFirst()
     }
 

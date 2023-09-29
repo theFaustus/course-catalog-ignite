@@ -1,26 +1,27 @@
 package inc.evil.coursecatalog.service.impl
 
-import com.hazelcast.core.HazelcastInstance
 import inc.evil.coursecatalog.common.exceptions.LockAcquisitionException
 import inc.evil.coursecatalog.common.exceptions.NotFoundException
-import inc.evil.coursecatalog.config.hazelcast.HazelcastConfiguration.Companion.WIKIPEDIA_SUMMARIES
+import inc.evil.coursecatalog.config.ignite.IgniteConfig.Companion.WIKIPEDIA_SUMMARIES
+import inc.evil.coursecatalog.ignite.repo.WikipediaSummaryRepository
 import inc.evil.coursecatalog.model.Course
 import inc.evil.coursecatalog.repo.CourseRepository
 import inc.evil.coursecatalog.service.CourseService
 import inc.evil.coursecatalog.service.WikipediaApiClient
+import org.apache.ignite.Ignite
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 private const val SUMMARIES_LOCK = "summaries-lock"
 
-@Service
+@Service("courseService")
 class CourseServiceImpl(
     val courseRepository: CourseRepository,
     val wikipediaApiClient: WikipediaApiClient,
-    @Qualifier("hazelcastInstance") val hazelcastInstance: HazelcastInstance
+    val wikipediaSummaryRepository: WikipediaSummaryRepository,
+    val igniteInstance: Ignite
 ) : CourseService {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -40,18 +41,20 @@ class CourseServiceImpl(
     }
 
     private fun enhanceWithProgrammingLanguageDescription(course: Course) {
-        val lock = hazelcastInstance.cpSubsystem.getLock(SUMMARIES_LOCK)
+        val lock = igniteInstance.reentrantLock(SUMMARIES_LOCK, true, true, true)
         if (!lock.tryLock()) throw LockAcquisitionException(SUMMARIES_LOCK, "enhanceWithProgrammingLanguageDescription")
+        log.debug("Acquired lock {}", lock)
         Thread.sleep(2000)
-        val summaries = hazelcastInstance.getMap<String, WikipediaApiClientImpl.WikipediaSummary>(WIKIPEDIA_SUMMARIES)
-        log.debug("Fetched hazelcast cache [$WIKIPEDIA_SUMMARIES] = [${summaries}(${summaries.size})]  ")
-        summaries.getOrElse(course.programmingLanguage) {
+        val summaries = wikipediaSummaryRepository.cache()
+        log.debug("Fetched ignite cache [$WIKIPEDIA_SUMMARIES] = size(${summaries.size()})]")
+        wikipediaSummaryRepository.findById(course.programmingLanguage).orElseGet {
             wikipediaApiClient.fetchSummaryFor("${course.programmingLanguage}_(programming_language)")?.let {
                 log.debug("No cache value found, using wikipedia's response $it to update $course programming language description")
-                summaries[course.programmingLanguage] = it
+                wikipediaSummaryRepository.save(course.programmingLanguage, it)
                 it
             }
         }?.let { course.programmingLanguageDescription = it.summary }
+
         lock.unlock()
     }
 

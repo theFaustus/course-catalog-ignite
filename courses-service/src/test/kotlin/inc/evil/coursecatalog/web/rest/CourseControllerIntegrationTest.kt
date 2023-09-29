@@ -7,15 +7,22 @@ import inc.evil.coursecatalog.common.WireMockContextInitializer
 import inc.evil.coursecatalog.common.dto.ErrorResponse
 import inc.evil.coursecatalog.common.fixtures.CourseResponseFixture
 import inc.evil.coursecatalog.common.stubResponse
+import inc.evil.coursecatalog.ignite.repo.WikipediaSummaryRepository
+import inc.evil.coursecatalog.service.impl.WikipediaApiClientImpl
 import inc.evil.coursecatalog.web.dto.CourseRequest
 import inc.evil.coursecatalog.web.dto.CourseResponse
 import inc.evil.coursecatalog.web.dto.InstructorRequest
+import org.apache.ignite.Ignite
+import org.apache.ignite.IgniteCache
+import org.apache.ignite.IgniteLock
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.util.*
 
 
 @IntegrationTest
@@ -27,6 +34,12 @@ internal class CourseControllerIntegrationTest {
 
     @Autowired
     lateinit var webTestClient: WebTestClient
+
+    @Autowired
+    lateinit var igniteInstance: Ignite
+
+    @Autowired
+    lateinit var wikipediaSummaryRepository: WikipediaSummaryRepository
 
     @Test
     @Sql(scripts = ["/h2/courses.sql"])
@@ -88,6 +101,13 @@ internal class CourseControllerIntegrationTest {
         val responseBody = IO.read("/json/wikipediea-instructor-response.json")
         wireMockServer.stubResponse("/page/summary/Bruce%20Eckel", responseBody)
         wireMockServer.stubResponse("/page/summary/java_(programming_language)", responseBody)
+        val cache = mock(IgniteCache::class.java) as IgniteCache<String, WikipediaApiClientImpl.WikipediaSummary>
+        val igniteLock = mock(IgniteLock::class.java)
+        `when`(igniteInstance.reentrantLock("summaries-lock", true, true, true)).thenReturn(igniteLock)
+        `when`(igniteLock.tryLock()).thenReturn(true)
+        `when`(wikipediaSummaryRepository.findById(any())).thenReturn(Optional.empty())
+        `when`(wikipediaSummaryRepository.cache()).thenReturn(cache)
+        `when`(cache.size()).thenReturn(0)
 
         val courseResponse = webTestClient.post()
             .uri("/api/v1/courses")

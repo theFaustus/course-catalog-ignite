@@ -1,5 +1,3 @@
-
-
 spring:
   data:
     r2dbc:
@@ -26,6 +24,17 @@ spring:
     graphiql:
       enabled: true
 
+ignite:
+  instanceName: ${spring.application.name}-client-${random.uuid}
+  discovery:
+    tcp:
+      enabled: true
+      host: localhost
+    kubernetes:
+      enabled: false
+      namespace: evil-inc
+      service-name: reviews-service
+
 management:
   endpoints:
     web:
@@ -49,4 +58,4 @@ logging:
     io.r2dbc.postgresql.QUERY: DEBUG # for queries
     io.r2dbc.postgresql.PARAM: DEBUG # for parameters
 server:
-  port: 8082
+  port: 8070

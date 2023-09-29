@@ -22,6 +22,8 @@ spring:
   graphql:
     graphiql:
       enabled: true
+  main:
+    allow-bean-definition-overriding: true
 
 greeting:
   message: "Hi there,"
@@ -37,6 +39,17 @@ kafka:
     consumerClientId: ${kafka.consumer.consumerGroupId}
     autoOffsetReset: earliest
     autoCommitInterval: 1000
+
+ignite:
+  instanceName: ${spring.application.name}-server-${random.uuid}
+  discovery:
+    tcp:
+      enabled: true
+      host: localhost
+    kubernetes:
+      enabled: false
+      namespace: evil-inc
+      service-name: course-service
 
 management:
   endpoints:

@@ -19,3 +19,14 @@ greeting:
 api:
   wikipedia:
     url: https://en.wikipedia.org/api/rest_v1
+
+ignite:
+  instanceName: ${spring.application.name}-server-${random.uuid}
+  discovery:
+    tcp:
+      enabled: true
+      host: localhost
+    kubernetes:
+      enabled: false
+      namespace: evil-inc
+      service-name: course-service

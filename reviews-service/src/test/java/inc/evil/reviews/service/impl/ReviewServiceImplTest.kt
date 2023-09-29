@@ -5,11 +5,9 @@ import inc.evil.courses.api.web.dto.InstructorApiResponse
 import inc.evil.reviews.common.fixtures.ReviewFixture
 import inc.evil.reviews.repo.ReviewRepository
 import inc.evil.reviews.service.ReviewService
-import inc.evil.reviews.service.hazelcast.GetCourseByIdCallable
-import inc.evil.reviews.service.hazelcast.HazelcastGateway
+import inc.evil.reviews.service.ignite.IgnitePeerGateway
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.*
@@ -22,8 +20,8 @@ import reactor.core.publisher.Mono
 internal class ReviewServiceImplTest {
 
     private var reviewRepository: ReviewRepository = mock(ReviewRepository::class.java)
-    private var hazelcastGateway: HazelcastGateway = mock(HazelcastGateway::class.java)
-    private var reviewService: ReviewService = ReviewServiceImpl(reviewRepository, hazelcastGateway)
+    private var ignitePeerGateway: IgnitePeerGateway = mock(IgnitePeerGateway::class.java)
+    private var reviewService: ReviewService = ReviewServiceImpl(reviewRepository, ignitePeerGateway)
 
     @Test
     fun findAll() {
@@ -55,7 +53,7 @@ internal class ReviewServiceImplTest {
         val courseApiResponse = CourseApiResponse(1, "name", "category", "java", "desc", "date", "date", instructor)
 
         `when`(reviewRepository.save(review)).thenReturn(Mono.just(review))
-        whenever(hazelcastGateway.execute(org.mockito.kotlin.any<GetCourseByIdCallable>())).thenReturn(courseApiResponse)
+        whenever(ignitePeerGateway.findCourseById(review.courseId!!)).thenReturn(courseApiResponse)
 
         runBlocking {
             Assertions.assertThat(reviewService.save(review)).isEqualTo(review)

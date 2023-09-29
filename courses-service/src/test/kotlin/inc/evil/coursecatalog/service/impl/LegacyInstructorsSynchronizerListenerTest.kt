@@ -3,6 +3,7 @@ package inc.evil.coursecatalog.service.impl
 import inc.evil.coursecatalog.InstructorAggregate
 import inc.evil.coursecatalog.Key
 import inc.evil.coursecatalog.common.AbstractTestcontainersIntegrationTest
+import inc.evil.coursecatalog.common.IgniteTestConfiguration
 import inc.evil.coursecatalog.service.InstructorService
 import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig
@@ -20,6 +21,7 @@ import org.mockito.Mockito.verify
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import java.time.Instant
 import java.util.*
@@ -28,6 +30,7 @@ import java.util.*
 @ActiveProfiles("integration-test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(IgniteTestConfiguration::class)
 internal class LegacyInstructorsSynchronizerListenerTest : AbstractTestcontainersIntegrationTest() {
 
     @MockBean

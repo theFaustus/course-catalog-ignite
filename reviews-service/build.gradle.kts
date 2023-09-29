@@ -11,6 +11,9 @@ group = "inc.evil"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
+//    By default, Spring pulls in a version of H2 that is not supported by Ignite,
+//    So we pin appropriate H2 version explicitly
+ext["h2.version"] = "1.4.197"
 
 repositories {
     mavenLocal()
@@ -36,9 +39,18 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
     implementation("org.apache.pdfbox:pdfbox:2.0.27")
-    implementation("com.hazelcast:hazelcast:5.2.1")
-    implementation("com.hazelcast:hazelcast-spring:5.2.1")
 
+    // Apache Ignite
+    implementation("org.apache.ignite:ignite-core:2.15.0")
+    implementation("org.apache.ignite:ignite-kubernetes:2.15.0")
+    implementation("org.apache.ignite:ignite-indexing:2.15.0")
+    implementation("org.apache.ignite:ignite-rest-http:2.15.0")
+    implementation("org.apache.ignite:ignite-spring-boot-autoconfigure-ext:1.0.0")
+    implementation("org.apache.ignite:ignite-spring-data-ext:2.0.0")
+
+    //    By default, Spring pulls in a version of H2 that is not supported by Ignite,
+    //    So we pin appropriate H2 version explicitly
+    runtimeOnly("com.h2database:h2:1.4.197")
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.6.4")
     runtimeOnly("org.postgresql:postgresql")

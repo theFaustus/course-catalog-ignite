@@ -1,5 +1,6 @@
 package inc.evil.coursecatalog.repo;
 
+import inc.evil.coursecatalog.common.IgniteTestConfiguration
 import inc.evil.coursecatalog.model.Category
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -8,10 +9,12 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.jdbc.Sql
 import java.util.stream.Stream
 
 @DataJpaTest
+@Import(IgniteTestConfiguration::class)
 class CourseRepositoryIntegrationTest {
 
     @Autowired

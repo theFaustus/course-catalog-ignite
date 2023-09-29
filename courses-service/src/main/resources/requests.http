@@ -15,7 +15,7 @@ DELETE http://localhost:8080/api/v1/courses/2
 Content-Type: application/json
 
 ### first instance
-POST http://localhost:8081/api/v1/courses
+POST http://localhost:8080/api/v1/courses
 Content-Type: application/json
 
 {
@@ -67,4 +67,32 @@ GET https://en.wikipedia.org/api/rest_v1/page/summary/java_(programming_language
 GET http://localhost:53818/page/summary/Bruce%20Eckel
 Content-Type: application/json
 
+###
+GET http://localhost:8888/ignite?cmd=version
 
+###
+GET http://localhost:8888/ignite?cmd=cache&cacheName=WIKIPEDIA_SUMMARIES
+
+###
+GET http://localhost:8888/ignite?cmd=size&cacheName=WIKIPEDIA_SUMMARIES
+
+###
+GET http://localhost:8888/ignite?cmd=metadata&cacheName=WIKIPEDIA_SUMMARIES
+
+###
+GET http://localhost:8888/ignite?cmd=getall&k1=C++&k2=java&cacheName=WIKIPEDIA_SUMMARIES
+
+###
+GET http://localhost:8888/ignite?cmd=get&key=C++&cacheName=WIKIPEDIA_SUMMARIES
+
+###
+GET http://localhost:8080/api/v1/ignite-cache/WIKIPEDIA_SUMMARIES
+Content-Type: application/json
+
+###
+GET http://localhost:8080/api/v1/ignite-cache
+Content-Type: application/json
+
+###
+DELETE http://localhost:8080/api/v1/ignite-cache/WIKIPEDIA_SUMMARIES/C++
+Content-Type: application/json
