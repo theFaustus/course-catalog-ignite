@@ -7,9 +7,7 @@ import org.apache.ignite.IgniteSpring
 import org.apache.ignite.cache.CacheAtomicityMode
 import org.apache.ignite.cache.CacheMode
 import org.apache.ignite.cache.CacheWriteSynchronizationMode
-import org.apache.ignite.cache.PartitionLossPolicy
 import org.apache.ignite.configuration.CacheConfiguration
-import org.apache.ignite.configuration.DeploymentMode
 import org.apache.ignite.configuration.IgniteConfiguration
 import org.apache.ignite.services.ServiceConfiguration
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi
@@ -51,12 +49,12 @@ class IgniteConfig(
     fun igniteConfiguration(): IgniteConfiguration {
         val igniteConfiguration = IgniteConfiguration()
         igniteConfiguration.setIgniteInstanceName(igniteProperties.instanceName)
-        igniteConfiguration.setServiceConfiguration(courseApiFacadeConfiguration()) //vararg
-        igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS)
+        igniteConfiguration.setPeerClassLoadingEnabled(true)
         igniteConfiguration.setMetricsLogFrequency(0) // no spam
         igniteConfiguration.setCommunicationSpi(configureTcpCommunicationSpi()) // avoid OOM due to message limit
         igniteConfiguration.setDiscoverySpi(configureDiscovery()) // allow possibility to switch to Kubernetes
         igniteConfiguration.setCacheConfiguration(wikipediaSummaryCacheConfiguration()) //vararg
+        igniteConfiguration.setServiceConfiguration(courseApiFacadeConfiguration()) //vararg
         return igniteConfiguration
     }
 
@@ -94,10 +92,8 @@ class IgniteConfig(
         wikipediaCache.setIndexedTypes(String::class.java, WikipediaApiClientImpl.WikipediaSummary::class.java)
         wikipediaCache.setEagerTtl(true)
         wikipediaCache.setCacheMode(CacheMode.REPLICATED)
-        wikipediaCache.setBackups(2)
-        wikipediaCache.setPartitionLossPolicy(PartitionLossPolicy.READ_ONLY_SAFE)
         wikipediaCache.setWriteSynchronizationMode(CacheWriteSynchronizationMode.FULL_ASYNC)
-        wikipediaCache.setAtomicityMode(CacheAtomicityMode.ATOMIC)
+        wikipediaCache.setAtomicityMode(CacheAtomicityMode.TRANSACTIONAL)
         wikipediaCache.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration(TimeUnit.MINUTES, 60)))
         return wikipediaCache
     }

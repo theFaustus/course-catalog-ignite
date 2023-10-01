@@ -5,7 +5,7 @@ import org.apache.ignite.Ignite
 import org.springframework.stereotype.Component
 
 @Component
-class IgnitePeerGateway(private val igniteInstance: Ignite) {
+class IgniteCoursesGateway(private val igniteInstance: Ignite) {
 
     fun findCourseById(id: Int) = courseApiFacade().findById(id)
 

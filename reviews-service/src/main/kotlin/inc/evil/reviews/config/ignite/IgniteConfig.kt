@@ -1,7 +1,6 @@
 package inc.evil.reviews.config.ignite
 
 import org.apache.ignite.Ignite
-import org.apache.ignite.configuration.DeploymentMode
 import org.apache.ignite.configuration.IgniteConfiguration
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
@@ -31,7 +30,7 @@ class IgniteConfig(val igniteProperties: IgniteProperties) {
         return IgniteConfigurer { igniteConfiguration: IgniteConfiguration ->
             igniteConfiguration.setIgniteInstanceName(igniteProperties.instanceName)
             igniteConfiguration.setClientMode(true)
-            igniteConfiguration.setDeploymentMode(DeploymentMode.CONTINUOUS)
+            igniteConfiguration.setPeerClassLoadingEnabled(true)
             igniteConfiguration.setMetricsLogFrequency(0) // no spam
             igniteConfiguration.setCommunicationSpi(configureTcpCommunicationSpi()) // avoid OOM due to message limit
             igniteConfiguration.setDiscoverySpi(configureDiscovery()) // allow possibility to switch to Kubernetes

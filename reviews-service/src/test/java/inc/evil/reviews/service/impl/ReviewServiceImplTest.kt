@@ -5,7 +5,7 @@ import inc.evil.courses.api.web.dto.InstructorApiResponse
 import inc.evil.reviews.common.fixtures.ReviewFixture
 import inc.evil.reviews.repo.ReviewRepository
 import inc.evil.reviews.service.ReviewService
-import inc.evil.reviews.service.ignite.IgnitePeerGateway
+import inc.evil.reviews.service.ignite.IgniteCoursesGateway
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
@@ -20,8 +20,8 @@ import reactor.core.publisher.Mono
 internal class ReviewServiceImplTest {
 
     private var reviewRepository: ReviewRepository = mock(ReviewRepository::class.java)
-    private var ignitePeerGateway: IgnitePeerGateway = mock(IgnitePeerGateway::class.java)
-    private var reviewService: ReviewService = ReviewServiceImpl(reviewRepository, ignitePeerGateway)
+    private var igniteCoursesGateway: IgniteCoursesGateway = mock(IgniteCoursesGateway::class.java)
+    private var reviewService: ReviewService = ReviewServiceImpl(reviewRepository, igniteCoursesGateway)
 
     @Test
     fun findAll() {
@@ -53,7 +53,7 @@ internal class ReviewServiceImplTest {
         val courseApiResponse = CourseApiResponse(1, "name", "category", "java", "desc", "date", "date", instructor)
 
         `when`(reviewRepository.save(review)).thenReturn(Mono.just(review))
-        whenever(ignitePeerGateway.findCourseById(review.courseId!!)).thenReturn(courseApiResponse)
+        whenever(igniteCoursesGateway.findCourseById(review.courseId!!)).thenReturn(courseApiResponse)
 
         runBlocking {
             Assertions.assertThat(reviewService.save(review)).isEqualTo(review)

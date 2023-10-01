@@ -54,7 +54,6 @@ class CourseServiceImpl(
                 it
             }
         }?.let { course.programmingLanguageDescription = it.summary }
-
         lock.unlock()
     }
 

@@ -27,8 +27,21 @@ Content-Type: application/json
   }
 }
 
+### second instance same payload
+POST http://localhost:8070/api/v1/courses
+Content-Type: application/json
+
+{
+  "name": "C++ Development",
+  "category": "TUTORIAL",
+  "programmingLanguage" : "C++",
+  "instructor": {
+    "name": "Bjarne Stroustrup"
+  }
+}
+
 ### second instance
-POST http://localhost:8083/api/v1/courses
+POST http://localhost:8070/api/v1/courses
 Content-Type: application/json
 
 {

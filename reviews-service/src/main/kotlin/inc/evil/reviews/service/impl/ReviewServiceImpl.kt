@@ -5,7 +5,7 @@ import inc.evil.reviews.common.exceptions.NotFoundException
 import inc.evil.reviews.model.Review
 import inc.evil.reviews.repo.ReviewRepository
 import inc.evil.reviews.service.ReviewService
-import inc.evil.reviews.service.ignite.IgnitePeerGateway
+import inc.evil.reviews.service.ignite.IgniteCoursesGateway
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.slf4j.Logger
@@ -16,7 +16,7 @@ import java.time.LocalDate
 
 @Service
 @Transactional
-class ReviewServiceImpl(val reviewRepository: ReviewRepository, val ignitePeerGateway: IgnitePeerGateway) : ReviewService {
+class ReviewServiceImpl(val reviewRepository: ReviewRepository, val igniteCoursesGateway: IgniteCoursesGateway) : ReviewService {
 
     companion object {
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -32,7 +32,7 @@ class ReviewServiceImpl(val reviewRepository: ReviewRepository, val ignitePeerGa
 
     override suspend fun save(review: Review): Review {
         runCatching {
-            ignitePeerGateway.findCourseById(review.courseId!!).also { log.info("Call to ignite ended with $it") }
+            igniteCoursesGateway.findCourseById(review.courseId!!).also { log.info("Call to ignite ended with $it") }
         }.onFailure { log.error("Oops, ignite remote execution failed due to ${it.message}", it) }
             .getOrNull() ?: throw NotFoundException(CourseApiResponse::class, "course_id", review.courseId.toString())
         return reviewRepository.save(review).awaitFirst()

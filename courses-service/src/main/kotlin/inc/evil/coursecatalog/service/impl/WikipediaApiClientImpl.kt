@@ -3,6 +3,7 @@ package inc.evil.coursecatalog.service.impl
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import inc.evil.coursecatalog.service.WikipediaApiClient
+import org.apache.ignite.cache.query.annotations.QuerySqlField
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -61,10 +62,13 @@ class WikipediaApiClientImpl(val wikipediaApiConfig: WikipediaApiConfig) : Wikip
     @JsonIgnoreProperties(ignoreUnknown = true)
     data class WikipediaSummary(
         @JsonProperty("title")
+        @QuerySqlField(name = "title", index = true)
         val title: String,
         @JsonProperty("description")
+        @QuerySqlField(name = "description", index = false)
         val description: String,
         @JsonProperty("extract")
+        @QuerySqlField(name = "summary", index = false)
         val summary: String
     )
 
